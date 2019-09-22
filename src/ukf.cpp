@@ -72,11 +72,11 @@ UKF::UKF() {
         0,
         0,
         0;
-  P_ << 1, 0, 0, 0, 0,
-        0, 1, 0, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 0, 0, 0,
-        0, 0, 0, 0, 1;
+  P_ << std_laspx_*std_laspx_, 0, 0, 0, 0,
+        0, std_laspy_*std_laspy_, 0, 0, 0,
+        0, 0, std_radrd_*std_radrd_, 0, 0,
+        0, 0, 0, std_radphi_*std_radrd_, 0,
+        0, 0, 0, 0, std_radphi_*std_radphi_;
 
   // Lidar Configuration
   R_lidar = MatrixXd(2,2);
