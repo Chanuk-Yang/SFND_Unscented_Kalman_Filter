@@ -1,6 +1,7 @@
 #ifndef UKF_H
 #define UKF_H
 
+#include <iostream>
 #include "Eigen/Dense"
 #include "measurement_package.h"
 
@@ -21,7 +22,7 @@ class UKF {
    * @param meas_package The latest measurement data of either radar or laser
    */
   void ProcessMeasurement(MeasurementPackage meas_package);
-
+  
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
    * matrix
@@ -57,8 +58,17 @@ class UKF {
   // state covariance matrix
   Eigen::MatrixXd P_;
 
+  // augmented state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate nu_a nu_yawdd]
+  Eigen::VectorXd x_aug;
+
+  // augmented state covariance matrix
+  Eigen::MatrixXd P_aug;
+
   // predicted sigma points matrix
   Eigen::MatrixXd Xsig_pred_;
+
+    // predicted sigma points matrix
+  Eigen::MatrixXd Xsig_aug_;
 
   // time when the state is true, in us
   long long time_us_;
@@ -87,6 +97,12 @@ class UKF {
   // Weights of sigma points
   Eigen::VectorXd weights_;
 
+  // Weight of sigma points at center
+  double weight_0;
+
+  // Weight of sigma points at distance
+  double weight_i;
+
   // State dimension
   int n_x_;
 
@@ -95,6 +111,12 @@ class UKF {
 
   // Sigma point spreading parameter
   double lambda_;
+
+  // Lidar Measurement covariance matrix
+  Eigen::MatrixXd R_;
+
+  // Lidar observation matrix
+  Eigen::MatrixXd H_;
 };
 
 #endif  // UKF_H
