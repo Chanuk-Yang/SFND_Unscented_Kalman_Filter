@@ -139,8 +139,8 @@ void UKF::Prediction(double delta_t) {
     Xsig_aug_.col(i+1+n_aug_) = x_aug - sqrt(lambda_+n_aug_) * SRM.col(i);
   }
 
-  for (int i = 0; i< 2*n_aug_+1; ++i) {
-    // extract values for better readability
+  for (int i = 0; i< 2*n_aug_+1; ++i) 
+  {
     double p_x = Xsig_aug_(0,i);
     double p_y = Xsig_aug_(1,i);
     double v = Xsig_aug_(2,i);
@@ -151,10 +151,13 @@ void UKF::Prediction(double delta_t) {
 
     double px_pred, py_pred;
 
-    if (fabs(yawd) > 0.0001) {
+    if (fabs(yawd) > 0.0001) 
+    {
         px_pred = p_x + v/yawd * ( sin (yaw + yawd*delta_t) - sin(yaw));
         py_pred = p_y + v/yawd * ( cos(yaw) - cos(yaw+yawd*delta_t) );
-    } else {
+    } 
+    else 
+    {
         px_pred = p_x + v*delta_t*cos(yaw);
         py_pred = p_y + v*delta_t*sin(yaw);
     }
@@ -163,7 +166,6 @@ void UKF::Prediction(double delta_t) {
     double yaw_pred = yaw + yawd*delta_t;
     double yawd_pred = yawd;
 
-    // add noise
     px_pred = px_pred + 0.5*nu_a*delta_t*delta_t * cos(yaw);
     py_pred = py_pred + 0.5*nu_a*delta_t*delta_t * sin(yaw);
     v_pred = v_pred + nu_a*delta_t;
@@ -171,13 +173,33 @@ void UKF::Prediction(double delta_t) {
     yaw_pred = yaw_pred + 0.5*nu_yawdd*delta_t*delta_t;
     yawd_pred = yawd_pred + nu_yawdd*delta_t;
 
-    // write predicted sigma point into right column
     Xsig_pred_(0,i) = px_pred;
     Xsig_pred_(1,i) = py_pred;
     Xsig_pred_(2,i) = v_pred;
     Xsig_pred_(3,i) = yaw_pred;
     Xsig_pred_(4,i) = yawd_pred;
   }
+
+  VectorXd x_sum = VectorXd(n_x_);
+  x_sum.fill(0.0);
+  for (int i = 0; i < 2 * n_aug_ + 1; ++i) {  
+    x_sum = x_sum + weights_(i) * Xsig_pred_.col(i);
+  }
+
+  MatrixXd P_sum = MatrixXd(n_x_,n_x_);
+  P_sum.fill(0.0);
+  for (int i = 0; i < 2 * n_aug_ + 1; ++i) {  
+
+    VectorXd x_diff = Xsig_pred_.col(i) - x_sum;
+
+    while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
+    while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
+
+    P_sum = P_sum + weights_(i) * x_diff * x_diff.transpose();
+  }
+
+  x_ = x_sum;
+  P_ = P_sum;
 }
 
 void UKF::UpdateLidar(MeasurementPackage meas_package) {
