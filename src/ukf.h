@@ -45,6 +45,7 @@ class UKF {
 
   // initially set to false, set to true in first call of ProcessMeasurement
   bool is_initialized_;
+  
 
   // if this is false, laser measurements will be ignored (except for init)
   bool use_laser_;
@@ -113,10 +114,20 @@ class UKF {
   double lambda_;
 
   // Lidar Measurement covariance matrix
-  Eigen::MatrixXd R_;
+  Eigen::MatrixXd R_lidar;
 
   // Lidar observation matrix
   Eigen::MatrixXd H_;
+
+  // Lidar previous timestamp
+  long lidar_timestamp_p;
+
+  // Number of Radar measurement
+  int n_z_radar;
+
+  // Lidar Measurement covariance matrix
+  Eigen::MatrixXd R_radar;
+
 };
 
 #endif  // UKF_H
